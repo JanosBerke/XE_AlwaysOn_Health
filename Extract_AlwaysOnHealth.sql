@@ -47,6 +47,9 @@ SELECT
     [event_data].value('(event/data[@name=''ddl_action'']/text)[1]', 'varchar(255)') AS [ddl_action],
     [event_data].value('(event/data[@name=''ddl_phase'']/text)[1]', 'varchar(255)') AS [ddl_phase],
     [event_data].value('(event/data[@name=''statement'']/value)[1]', 'varchar(8000)') AS [statement],
+    [event_data].value('(event/data[@name=''client_app_name'']/value)[1]', 'nvarchar(4000)') AS [client_app_name], --SQL2017
+    [event_data].value('(event/data[@name=''client_host_name'']/value)[1]', 'nvarchar(255)') AS [client_host_name],--SQL2017
+    [event_data].value('(event/data[@name=''nt_username'']/value)[1]', 'sysname') AS [nt_username],--SQL2017
     [event_data].value('(event/data[@name=''availability_group_id'']/value)[1]', 'uniqueidentifier') AS [availability_group_id],
     [event_data].value('(event/data[@name=''availability_group_name'']/value)[1]', 'nvarchar(255)') AS [availability_group_name]
 FROM
@@ -88,7 +91,8 @@ SELECT
     [event_data].value('(event/@timestamp)[1]', 'datetime') AS [timestamp],
     [event_data].value('(event/data[@name=''current_state'']/text)[1]', 'varchar(255)') AS [current_state],
     [event_data].value('(event/data[@name=''availability_group_id'']/value)[1]', 'uniqueidentifier') AS [availability_group_id],
-    [event_data].value('(event/data[@name=''availability_group_name'']/value)[1]', 'nvarchar(255)') AS [availability_group_name]
+    [event_data].value('(event/data[@name=''availability_group_name'']/value)[1]', 'nvarchar(255)') AS [availability_group_name],
+    [event_data].value('(event/data[@name=''availability_replica_id'']/value)[1]', 'nvarchar(255)') AS [availability_replica_id]
 FROM
     [#XE_Raw]
 WHERE
@@ -103,6 +107,7 @@ SELECT
     [event_data].value('(event/data[@name=''current_state'']/text)[1]', 'varchar(255)') AS [current_state],
     [event_data].value('(event/data[@name=''availability_group_id'']/value)[1]', 'uniqueidentifier') AS [availability_group_id],
     [event_data].value('(event/data[@name=''availability_group_name'']/value)[1]', 'nvarchar(255)') AS [availability_group_name],
+    [event_data].value('(event/data[@name=''availability_replica_id'']/value)[1]', 'uniqueidentifier') AS [availability_replica_id],
     [event_data].value('(event/data[@name=''availability_replica_name'']/value)[1]', 'nvarchar(255)') AS [availability_replica_name]
 FROM
     [#XE_Raw]
@@ -158,9 +163,9 @@ SELECT
     [event_data].value('(event/data[@name=''lockspace_workspace_id'']/value)[1]', 'varchar(255)') AS [lockspace_workspace_id], --varbimary(64)
     [event_data].value('(event/data[@name=''lockspace_sub_id'']/value)[1]', 'int') AS [lockspace_sub_id],
     [event_data].value('(event/data[@name=''lockspace_nest_id'']/value)[1]', 'int') AS [lockspace_nest_id],
-    [event_data].value('(event/data[@name=''resource_0'']/value)[1]', 'bigint') AS [resource_0],
-    [event_data].value('(event/data[@name=''resource_1'']/value)[1]', 'bigint') AS [resource_1],
-    [event_data].value('(event/data[@name=''resource_2'']/value)[1]', 'bigint') AS [resource_2],
+    [event_data].value('(event/data[@name=''resource_0'']/value)[1]', 'bigint') AS [resource_0], --object id
+    [event_data].value('(event/data[@name=''resource_1'']/value)[1]', 'bigint') AS [resource_1], 
+    [event_data].value('(event/data[@name=''resource_2'']/value)[1]', 'bigint') AS [resource_2], -- lock partition when resource_0 is object and resource_2 is 0
     [event_data].value('(event/data[@name=''object_id'']/value)[1]', 'int') AS [object_id],
     [event_data].value('(event/data[@name=''associated_object_id'']/value)[1]', 'bigint') AS [associated_object_id],
     [event_data].value('(event/data[@name=''duration'']/value)[1]', 'bigint') AS [duration_ms],
@@ -172,6 +177,7 @@ WHERE
     [object_name] = 'lock_redo_blocked'
 GO
 -- availability_replica_automatic_failover_validation
+
 
 SELECT
     --[object_name],
